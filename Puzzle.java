@@ -202,9 +202,9 @@ public class Puzzle {
         if( s.equals(       autoPosBox.name )  &&  autoPosBox.isSelected() ) positionCenters();
         if( s.equals(       layeredBox.name ) ) {
           if( layeredBox.isSelected() ) {
-            if( flatFrame != null ) flatFrame.show(); else makeFlatFrame();
+            if( flatFrame != null ) flatFrame.setVisible(true); else makeFlatFrame();
           } else {
-            if( flatFrame != null ) flatFrame.hide();
+            if( flatFrame != null ) flatFrame.setVisible(false);
           }
         }
         paintPanes();
@@ -1182,7 +1182,7 @@ public class Puzzle {
       curParam = index;
       ignore   = true;
       slider.setValue( Math.round( 720.f * ( val - min )/( max - min ) ) );
-      numberField.setValue( new Float( val ) );
+      numberField.setValue( Float.valueOf( val ) );
       ignore   = false;
       left_Label.setText( name.concat(":") );
       rightLabel.setText( units            );
@@ -1341,7 +1341,7 @@ public class Puzzle {
   /* Change the value of a parameter. */
   void modifyParam( Param p, float v ) {
     p.val = Math.min( p.max, Math.max( p.min, v ) );
-    if( param[curParam] == p ) numberField.setValue( new Float(v) );
+    if( param[curParam] == p ) numberField.setValue( Float.valueOf(v) );
   }
 
   /* Change the value of a parameter which is an angle.  Arg passed in radians, converted to degrees. */
@@ -1713,7 +1713,7 @@ public class Puzzle {
     for(i=0; i<rEvent.length; i++) for(j=0; j<3; j++) // arrow keys with modifiers,
       iMap.put( KeyStroke.getKeyStroke( rEvent[i], mod[j] ), "none" );
     for(i=0; i<command.length-1; i++)                 // command control keys.
-      iMap.put( KeyStroke.getKeyStroke( command[i].accKey, InputEvent.CTRL_MASK ), "none" );
+      iMap.put( KeyStroke.getKeyStroke( command[i].accKey, InputEvent.CTRL_DOWN_MASK ), "none" );
     /* It seems silly to have to tell the numeric field to ignore all these characters that
        don't make sense there anyway.  But without the above code, the program does not work correctly. */
 
@@ -1747,7 +1747,7 @@ public class Puzzle {
     for(i=0; i<param.length; i++) if( param[i] == faceSizeP ) break; // Find index of faceSize param.
     curParam = i;
     faceSizeP.setSelected( true );
-    numberField.setValue( new Float( faceSizeP.val ) );
+    numberField.setValue( Float.valueOf( faceSizeP.val ) );
 
     /* Check for a file argument or a default settings file; or set builtin configuration #1. */
     if( !( startMethod.equals("application")  &&
@@ -1770,7 +1770,7 @@ public class Puzzle {
   AbstractAction delayedShow = new AbstractAction() {
       public void actionPerformed( ActionEvent e ) {
         delayTimer.stop();
-        frame.show();
+        frame.setVisible(true);
       }
     };
 
@@ -1790,7 +1790,7 @@ public class Puzzle {
       int i   = curParam;
       float v = param[i].min + ( param[i].max - param[i].min ) * slider.getValue() / 720.f;
       startParam(i);
-        numberField.setValue( new Float(v) );
+        numberField.setValue( Float.valueOf(v) );
       finishParam(i,v);
     }
   }
@@ -1799,10 +1799,12 @@ public class Puzzle {
   public class TextFieldChangeListener implements PropertyChangeListener {
     public void propertyChange( PropertyChangeEvent e ) {
       if( ignore ) return;
+      Object value = numberField.getValue();
+      if( value == null ) return;
       int i   = curParam;
-      float v = Math.min( param[i].max, Math.max( param[i].min, ((Number)numberField.getValue()).floatValue() ));
+      float v = Math.min( param[i].max, Math.max( param[i].min, ((Number)value).floatValue() ));
       startParam(i);
-        numberField.setValue( new Float(v) ); // In case it was out of bounds.
+        numberField.setValue( Float.valueOf(v) ); // In case it was out of bounds.
         slider.setValue( Math.round( 720.f*( v-param[i].min )/( param[i].max - param[i].min ) ) );
       finishParam(i,v);
     }
@@ -2584,10 +2586,10 @@ public class Puzzle {
     }
   }
 
-  public final Comparator orthoCompare = new Comparator() {
-      public int compare( Object o1, Object o2 ) {
-        StickerPlace p1 = ((StickerPlace)o1);
-        StickerPlace p2 = ((StickerPlace)o2);
+  public final Comparator<StickerPlace> orthoCompare = new Comparator<StickerPlace>() {
+      public int compare( StickerPlace o1, StickerPlace o2 ) {
+        StickerPlace p1 = o1;
+        StickerPlace p2 = o2;
         return ( p1.maxY == p2.maxY ) ? ( p1.facesOut ? -1 : 1 ) : ( p1.maxY < p2.maxY  ? 1 : -1 );
       }
     };
@@ -2841,10 +2843,10 @@ public class Puzzle {
     p.x = t;
   }
 
-  public final Comparator roverCompare = new Comparator() {
-      public int compare( Object o1, Object o2 ) {
-        float d1 = ((StickerPlace)o1).roverDist;
-        float d2 = ((StickerPlace)o2).roverDist;
+  public final Comparator<StickerPlace> roverCompare = new Comparator<StickerPlace>() {
+      public int compare( StickerPlace o1, StickerPlace o2 ) {
+        float d1 = o1.roverDist;
+        float d2 = o2.roverDist;
         return ( d1==d2 ? ( ((StickerPlace)o1).facesOut ? -1 : 1 ) : ( d1<d2 ? -1 : 1 ) );
       }
     };
@@ -3758,7 +3760,7 @@ public class Puzzle {
     flatFrame.setSize( 408, 658 );
     Point p = frame.getLocationOnScreen();
     flatFrame.setLocation( p.x + frame.getWidth() + 5, p.y );
-    flatFrame.show();
+    flatFrame.setVisible(true);
   }
 
   class FlatCloser extends WindowAdapter {

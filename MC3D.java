@@ -30,7 +30,7 @@ public class MC3D extends Applet {
     }
     public void actionPerformed( ActionEvent e ) {
       if( puzzle == null  ||  puzzle.frame == null ) puzzle = new Puzzle( "button", args );
-      else puzzle.frame.show();
+      else puzzle.frame.setVisible(true);
     }
   }
 }
